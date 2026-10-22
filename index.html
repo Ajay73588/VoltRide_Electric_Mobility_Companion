@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VoltRide – Electric Mobility Companion (student concept)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--line:#dfe4e1;--tx:#14181a;--mu:#5f6b66;--g:#0a9b52;--gb:#16e07a;--bl:#2f7df6;--am:#e69a12;--rd:#e5484d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#101314;--card:#191d1f;--line:#2a3033;--tx:#f2f5f3;--mu:#98a39e;--g:#16e07a;--bl:#5a9bff;--am:#f2b23a}}
+:root[data-theme=dark]{--bg:#101314;--card:#191d1f;--line:#2a3033;--tx:#f2f5f3;--mu:#98a39e;--g:#16e07a;--bl:#5a9bff;--am:#f2b23a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 Sora,system-ui,sans-serif}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+#app{display:flex;min-height:100vh}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;background:none;border:0;padding:10px 2px;font-size:11px;color:var(--mu)}
+nav button[aria-current=page]{color:var(--g);font-weight:600}
+nav b{display:block;font-size:18px}
+main{flex:1;max-width:980px;width:100%;margin:0 auto;padding:18px 16px 96px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:17px;margin:0 0 10px}
+.mu{color:var(--mu);font-size:13px}
+.tag{display:inline-block;font-size:11px;border:1px solid var(--g);color:var(--g);border-radius:99px;padding:1px 9px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.btn{background:var(--g);color:#04210f;border:0;border-radius:12px;padding:10px 16px;font-weight:600}
+.btn.o{background:none;border:1px solid var(--line);color:var(--tx)}
+.big{font-size:44px;font-weight:800;line-height:1}
+.bar{height:10px;border-radius:9px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--g)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sp{justify-content:space-between}
+input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.chip{border:1px solid var(--line);background:none;border-radius:99px;padding:6px 12px;font-size:13px}
+.chip.on{background:var(--g);color:#04210f;border-color:var(--g)}
+.item{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px}
+.item.on{border-color:var(--g)}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 30%,#12402b,#0c1011 70%);color:#f2f5f3}
+.hero h1{font-size:40px}.hero p{max-width:420px;color:#b4c0ba}
+svg{max-width:100%}
+.me,.bot{max-width:82%;padding:10px 13px;border-radius:16px;margin:6px 0}
+.me{margin-left:auto;background:var(--g);color:#04210f}.bot{background:var(--bg);border:1px solid var(--line)}
+.sw{width:46px;height:26px;border-radius:20px;border:1px solid var(--line);background:var(--line);position:relative;padding:0}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.15s}
+.sw[aria-checked=true]{background:var(--g)}.sw[aria-checked=true]::after{left:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
+@media(min-width:760px){nav{top:0;bottom:auto;right:auto;width:190px;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:20px 10px}nav button{text-align:left;padding:12px;font-size:14px;border-radius:12px}nav b{display:inline;margin-right:8px}main{margin-left:190px;max-width:none;padding:28px 36px}#app{display:block}main>div{max-width:980px;margin:0 auto}}
+</style></head><body><div id="app"></div>
+<script>
+const S={screen:'welcome',locked:true,dest:null,period:'week',q:'',fast:false,avail:false,st:null,theme:'auto',notif:{charge:true,ride:true,tips:false},eco:true,chat:[{m:'bot',t:'Hi, I’m the VoltRide demo assistant. Ask about range, trip prep or charging stops.'}],nav:false};
+const BAT=78,FULL=114,RANGE=Math.round(FULL*BAT/100);
+const pct=km=>Math.round(km/FULL*100);
+const DEST=[{n:'Marina Beach',km:18,min:32,x:250,y:60},{n:'Tech Park',km:34,min:55,x:300,y:150},{n:'Airport',km:62,min:85,x:60,y:170},{n:'Mahabalipuram',km:96,min:130,x:330,y:200}];
+const ST=[{n:'Volt Hub T Nagar',km:1.2,t:'Fast',a:4,x:120,y:90},{n:'Velachery Plaza',km:3.4,t:'Fast',a:0,x:200,y:140},{n:'Adyar Slow Point',km:5.1,t:'Standard',a:2,x:70,y:150},{n:'OMR Charge Bay',km:11,t:'Fast',a:3,x:290,y:110},{n:'Tambaram Stop',km:17,t:'Standard',a:1,x:230,y:190}];
+const RIDES=[['Mon',12.4,0.6],['Tue',8.1,0.4],['Wed',24.6,1.2],['Thu',15.3,0.8],['Fri',31.2,1.6],['Sat',42.7,2.1],['Sun',18.9,0.9]];
+const MON=[['W1',96,4.8],['W2',121,6.1],['W3',88,4.4],['W4',153,7.7]];
+const LOG=[['Today','Home → Office',14.2,'27 min'],['Yesterday','Office → Gym',6.8,'15 min'],['Mon','Weekend loop',42.7,'1 h 20']];
+const $=s=>document.querySelector(s);
+const tabs=[['dash','⌂','Home'],['trip','➤','Trips'],['charge','⚡','Charge'],['stats','▥','Stats'],['ai','✦','Assistant'],['set','⚙','Profile']];
+function reply(q){q=q.toLowerCase();
+ if(/range|reach|battery/.test(q)){const d=DEST.find(x=>q.includes(x.n.toLowerCase().split(' ')[0]));
+  if(d){const u=pct(d.km);return `${d.n} is about ${d.km} km away and would use roughly ${u}% of the battery. You’d arrive near ${BAT-u}%. These are rough demo estimates, not guarantees.`}
+  return `At ${BAT}% the demo estimate is about ${RANGE} km. Real range varies with speed, load, terrain and weather, so keep a buffer.`}
+ if(/charg|stop/.test(q))return 'For trips over about '+Math.round(RANGE*0.7)+' km I suggest a fast-charging stop. Volt Hub T Nagar (1.2 km, Fast, 4 bays free) is the closest sample station.';
+ if(/trip|prepare|prep|ready|check/.test(q))return 'Before riding: check tyre pressure, keep battery above 30% on arrival, unlock the scooter, and pick a route in Trips. Demo checklist only.';
+ return 'I only know demo topics: range, trip preparation and charging stops. Try one of the suggestions.'}
+const scooter=`<svg viewBox="0 0 360 170" role="img" aria-label="Illustration of an electric scooter"><ellipse cx="180" cy="158" rx="150" ry="7" fill="#0003"/><circle cx="80" cy="125" r="30" fill="none" stroke="#16e07a" stroke-width="7"/><circle cx="280" cy="125" r="30" fill="none" stroke="#16e07a" stroke-width="7"/><path d="M80 125 L130 95 H230 L280 125 M230 95 L250 40 H280 M130 95 Q150 60 215 62 L250 40" fill="none" stroke="#9aa" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><rect x="140" y="100" width="82" height="22" rx="8" fill="#16e07a"/><circle cx="80" cy="125" r="5" fill="#9aa"/><circle cx="280" cy="125" r="5" fill="#9aa"/></svg>`;
+function map(pts,route,sel){return `<svg viewBox="0 0 400 240" role="img" aria-label="Illustrative map, not live navigation" style="width:100%;background:var(--bg);border-radius:14px;border:1px solid var(--line)"><g stroke="var(--line)" stroke-width="10" fill="none"><path d="M0 60H400M0 150H400M90 0V240M220 0V240M330 0V240"/></g><path d="M0 200 Q100 170 160 230" stroke="${'#2f7df6'}" stroke-opacity=".35" stroke-width="16" fill="none"/>${route?`<path d="M40 190 L${route.x} ${route.y}" stroke="#16a35c" stroke-width="5" stroke-dasharray="9 6" fill="none"/><circle cx="40" cy="190" r="8" fill="#2f7df6"/><circle cx="${route.x}" cy="${route.y}" r="9" fill="#e5484d"/>`:''}${pts.map((p,i)=>`<g tabindex="0" role="button" aria-label="${p.n}" data-st="${i}" style="cursor:pointer"><circle cx="${p.x}" cy="${p.y}" r="${sel===i?13:9}" fill="${p.a?'#16a35c':'#e5484d'}" stroke="#fff" stroke-width="3"/></g>`).join('')}</svg>`}
+const V={
+welcome:()=>`<div class="hero"><span class="tag">Independent student concept · Demo data</span><div style="width:min(380px,90%)">${scooter}</div><h1>Ride smarter, charge easier</h1><p>VoltRide brings your scooter’s battery, trips, charging and ride insights into one calm place.</p><p class="mu">Not affiliated with any scooter maker. No real vehicle, GPS, charger network or AI is connected.</p><button class="btn" id="go" style="font-size:17px;padding:14px 32px">Get started</button></div>`,
+dash:()=>`<h1>Good morning, Asha</h1><p class="mu"><span class="tag">Demo data</span> Not a live vehicle connection</p><div class="grid g2"><div class="card"><div style="background:#0f1314;border-radius:14px;padding:8px">${scooter}</div><div class="row sp" style="margin-top:12px"><div><div class="big">${BAT}%</div><div class="mu">Battery</div></div><div style="text-align:right"><div class="big">${RANGE} km</div><div class="mu">Est. range*</div></div></div><div class="bar" style="margin:12px 0" role="progressbar" aria-valuenow="${BAT}" aria-valuemin="0" aria-valuemax="100"><i style="width:${BAT}%"></i></div><button class="btn ${S.locked?'':'o'}" id="lock" style="width:100%">${S.locked?'🔒 Locked – tap to unlock':'🔓 Unlocked – tap to lock'}</button><p class="mu">*Estimate only; real range varies.</p></div><div class="grid"><div class="card"><h2>Last ride</h2><div class="row sp"><div><div class="big" style="font-size:30px">14.2 km</div><div class="mu">Distance</div></div><div><div class="big" style="font-size:30px">31 km/h</div><div class="mu">Avg speed</div></div></div><p class="mu">Home → Office · 27 min · 0.7 kWh</p></div><div class="card"><h2>Quick actions</h2><div class="row"><button class="btn o" data-go="trip">Plan trip</button><button class="btn o" data-go="charge">Find charger</button><button class="btn o" data-go="stats">Analytics</button><button class="btn o" data-go="ai">Ask AI</button></div></div></div></div>`,
+trip:()=>{const d=S.dest;return `<h1>Plan a trip</h1><p class="mu">Illustrative map · demo estimates only</p><div class="grid g2"><div><input type="text" value="Current location" aria-label="Origin" readonly style="margin-bottom:8px"><input type="text" value="${d?d.n:''}" placeholder="Choose a destination below" aria-label="Destination" readonly style="margin-bottom:12px">${DEST.map((x,i)=>`<button class="item ${d===x?'on':''}" data-d="${i}"><b>${x.n}</b><div class="mu">${x.km} km · ${x.min} min</div></button>`).join('')}</div><div class="card">${map([],d)}${d?`<div class="row sp" style="margin-top:12px"><div><b>${d.km} km</b><div class="mu">${d.min} min</div></div><div><b>${pct(d.km)}% battery</b><div class="mu">Arrive ~${BAT-pct(d.km)}%</div></div></div>${BAT-pct(d.km)<30?'<p style="color:var(--am)">⚠ Battery would drop below 30%. Suggested stop: OMR Charge Bay (Fast).</p>':'<p class="mu">No charging stop needed in this estimate.</p>'}<p class="mu">Demo logic: battery % = distance ÷ ${FULL} km full-charge range.</p>`:'<p class="mu">Select a destination to see the route.</p>'}</div></div>`},
+charge:()=>{const l=ST.filter(s=>s.n.toLowerCase().includes(S.q.toLowerCase())&&(!S.fast||s.t=='Fast')&&(!S.avail||s.a>0));const s=ST[S.st];return `<h1>Charging stations</h1><p class="mu"><span class="tag">Illustrative sample data</span></p><input type="text" id="q" placeholder="Search stations" aria-label="Search stations" value="${S.q}"><div class="row" style="margin:10px 0"><button class="chip ${S.fast?'on':''}" id="ff" aria-pressed="${S.fast}">Fast charging</button><button class="chip ${S.avail?'on':''}" id="fa" aria-pressed="${S.avail}">Available now</button></div><div class="grid g2"><div>${l.length?l.map(x=>`<button class="item ${s===x?'on':''}" data-st="${ST.indexOf(x)}"><b>${x.n}</b><div class="mu">${x.km} km · ${x.t} · ${x.a?x.a+' bays free':'Busy'}</div></button>`).join(''):'<div class="card mu">No stations match. Clear the filters or try another name.</div>'}</div><div class="card">${map(l,null,S.st)}${s?`<h2 style="margin-top:12px">${s.n}</h2><p class="mu">${s.t} charger · ${s.km} km away · ${s.a?s.a+' bays (sample)':'No bays free (sample)'}</p><button class="btn" id="nav">Navigate (simulated)</button><p id="navmsg" class="mu" role="status"></p>`:'<p class="mu">Tap a station to see details.</p>'}</div></div>`},
+stats:()=>{const d=S.period=='week'?RIDES:MON,mx=Math.max(...d.map(x=>x[1])),mk=Math.max(...d.map(x=>x[2]));const tot=d.reduce((a,x)=>a+x[1],0),en=d.reduce((a,x)=>a+x[2],0);const w=300/d.length;
+return `<h1>Ride analytics</h1><p class="mu"><span class="tag">All metrics simulated</span></p><div class="row" style="margin-bottom:12px"><button class="chip ${S.period=='week'?'on':''}" data-p="week">Weekly</button><button class="chip ${S.period=='month'?'on':''}" data-p="month">Monthly</button></div><div class="grid g2"><div class="card"><div class="row sp"><div><div class="big" style="font-size:30px">${tot.toFixed(0)} km</div><div class="mu">Total distance</div></div><div><div class="big" style="font-size:30px">${(tot/(S.period=='week'?7:4)).toFixed(1)} km</div><div class="mu">Avg per ${S.period=='week'?'day':'week'}</div></div><div><div class="big" style="font-size:30px">${en.toFixed(1)} kWh</div><div class="mu">Energy</div></div></div></div><div class="card"><h2>Distance (km)</h2><svg viewBox="0 0 320 130" role="img" aria-label="Distance bar chart">${d.map((x,i)=>`<rect x="${10+i*w}" y="${110-x[1]/mx*95}" width="${w-12}" height="${x[1]/mx*95}" rx="5" fill="var(--g)"/><text x="${10+i*w+(w-12)/2}" y="126" text-anchor="middle" font-size="10" fill="var(--mu)">${x[0]}</text>`).join('')}</svg></div><div class="card"><h2>Energy (kWh)</h2><svg viewBox="0 0 320 130" role="img" aria-label="Energy line chart"><polyline fill="none" stroke="var(--bl)" stroke-width="3" points="${d.map((x,i)=>`${10+i*w+(w-12)/2},${110-x[2]/mk*95}`).join(' ')}"/>${d.map((x,i)=>`<circle cx="${10+i*w+(w-12)/2}" cy="${110-x[2]/mk*95}" r="4" fill="var(--bl)"/><text x="${10+i*w+(w-12)/2}" y="126" text-anchor="middle" font-size="10" fill="var(--mu)">${x[0]}</text>`).join('')}</svg></div><div class="card"><h2>Recent rides</h2><table><tr><th>When</th><th>Route</th><th>Km</th></tr>${LOG.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table></div></div>`},
+ai:()=>`<h1>Ride assistant</h1><p class="mu"><span class="tag">Demo</span> Answers come from local rules, not a live AI. Estimates are not safety guarantees.</p><div class="card" style="min-height:260px" id="log" aria-live="polite">${S.chat.map(c=>`<div class="${c.m=='me'?'me':'bot'}">${c.t}</div>`).join('')}</div><div class="row" style="margin:10px 0">${['Can I reach Marina Beach?','How do I prepare for a trip?','Suggest a charging stop'].map(t=>`<button class="chip" data-chip="${t}">${t}</button>`).join('')}</div><div class="row"><input type="text" id="msg" placeholder="Ask about range, trips or charging" aria-label="Message" style="flex:1"><button class="btn" id="send">Send</button></div>`,
+set:()=>{const sw=(k,l,v)=>`<div class="row sp" style="padding:8px 0"><span>${l}</span><button class="sw" role="switch" aria-checked="${v}" aria-label="${l}" data-sw="${k}"></button></div>`;return `<h1>Profile & settings</h1><div class="card" style="border-color:var(--am);margin-bottom:14px">⚠ This app is not connected to a real vehicle. It is an independent student concept with illustrative data.</div><div class="grid g2"><div class="card"><h2>Asha Raman</h2><p class="mu">Demo user · VoltRide Scooter S1 (sample)</p>${sw('eco','Eco ride mode',S.eco)}<h2 style="margin-top:14px">Theme</h2><div class="row">${['auto','light','dark'].map(t=>`<button class="chip ${S.theme==t?'on':''}" data-th="${t}">${t}</button>`).join('')}</div></div><div class="card"><h2>Notifications</h2>${sw('charge','Charging reminders',S.notif.charge)}${sw('ride','Ride summaries',S.notif.ride)}${sw('tips','Tips & news',S.notif.tips)}</div><div class="card"><h2>About</h2><p class="mu">VoltRide is a portfolio concept exploring UI/UX for electric scooter ownership. Built with plain HTML, CSS and JavaScript; all data is local sample data. Not an official product of any manufacturer.</p></div></div>`}};
+function render(){const a=$('#app');if(S.screen=='welcome'){a.innerHTML=V.welcome();$('#go').onclick=()=>{S.screen='dash';render()};return}
+a.innerHTML=`<nav aria-label="Main">${tabs.map(t=>`<button data-go="${t[0]}" ${S.screen==t[0]?'aria-current="page"':''}><b>${t[1]}</b>${t[2]}</button>`).join('')}</nav><main><div>${V[S.screen]()}</div></main>`;bind()}
+function bind(){const on=(s,f)=>document.querySelectorAll(s).forEach(e=>e.onclick=()=>f(e));
+on('[data-go]',e=>{S.screen=e.dataset.go;render();scrollTo(0,0)});
+if($('#lock'))$('#lock').onclick=()=>{S.locked=!S.locked;render()};
+on('[data-d]',e=>{S.dest=DEST[e.dataset.d];render()});
+on('[data-p]',e=>{S.period=e.dataset.p;render()});
+on('[data-st]',e=>{S.st=+e.dataset.st;render()});
+document.querySelectorAll('g[data-st]').forEach(g=>g.onkeydown=e=>{if(e.key=='Enter'){S.st=+g.dataset.st;render()}});
+if($('#q'))$('#q').oninput=e=>{S.q=e.target.value;const p=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(p,p)};
+if($('#ff'))$('#ff').onclick=()=>{S.fast=!S.fast;render()};
+if($('#fa'))$('#fa').onclick=()=>{S.avail=!S.avail;render()};
+if($('#nav'))$('#nav').onclick=()=>{$('#navmsg').textContent='Simulated: no real navigation is started.'};
+on('[data-sw]',e=>{const k=e.dataset.sw;k=='eco'?S.eco=!S.eco:S.notif[k]=!S.notif[k];render()});
+on('[data-th]',e=>{S.theme=e.dataset.th;e.dataset.th=='auto'?document.documentElement.removeAttribute('data-theme'):document.documentElement.dataset.theme=e.dataset.th;render()});
+const send=t=>{if(!t.trim())return;S.chat.push({m:'me',t:t.replace(/</g,'&lt;')},{m:'bot',t:reply(t)});render();const l=$('#log');l.lastElementChild.scrollIntoView({block:'nearest'});$('#msg').focus()};
+on('[data-chip]',e=>send(e.dataset.chip));
+if($('#send')){$('#send').onclick=()=>send($('#msg').value);$('#msg').onkeydown=e=>{if(e.key=='Enter')send(e.target.value)}}}
+render();
+</script></body></html>
